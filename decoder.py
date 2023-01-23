@@ -16,18 +16,6 @@ class dltDecoder:
         self.__argc = argc
         self.__argv = argv
         self.__exec = argv[0]
-        
-    def __makeNumberTable():
-        __numberMap[0] = 'Z'
-        __numberMap[1] = 'A'
-        __numberMap[2] = '%'
-        __numberMap[3] = 'Q'
-        __numberMap[4] = 'S'
-        __numberMap[5] = '#'
-        __numberMap[6] = 'R'
-        __numberMap[7] = 'E'
-        __numberMap[8] = '^'
-        __numberMap[9] = '&'
 
     def __createDecodedFile(self,file_path):
         index = file_path.find(".dlt")
