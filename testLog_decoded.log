@@ -1,0 +1,4 @@
+0 2022/10/26 23:02:12.633715 14060.2731 151 ECU1 DABS dDRV 1094 log debug verbose 1 [1094:1131] : =============== Initial data (Special line) =====================
+1 2022/10/26 23:02:12.633748 14060.2732 154 ECU1 DABS dDRV 1094 log debug verbose 1 [1094:1134] : Coordinates (non personal data): '40°44'30.822", 73°59'21.508"'
+2 2022/10/26 23:02:12.633781 14060.2732 68 ECU1 DABS dRCV 1094 log debug verbose 1 [1094:1137] : Very specific text, like encoded text(non personal data): p{diBIdWJhbm92SWhvcp}p
+3 2022/10/26 23:02:12.633792 14060.2733 166 ECU1 DABS DABS 1094 log debug verbose 1 [1094:1138] : =============== Final (End line) =====================
