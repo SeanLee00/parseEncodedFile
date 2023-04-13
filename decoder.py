@@ -29,38 +29,37 @@ class dltDecoder:
         else:
             return file
 
-    def decodeData(self, shift, encoded_data):
+    def __rotateData(self, data, rotate_count):
+        if rotate_count < 0:
+            rotate_count = (rotate_count*-1) % len(data)
+            rotate_count = (rotate_count*-1)
+        else:
+            rotate_count = rotate_count % len(data)
+        data = data[rotate_count:] + data[:rotate_count]
+        return data
+
+    def decodeData(self, rotate_count, encoded_data):
         decoded_data = b""
         try:
-            pos = len(encoded_data) - shift
-            a = encoded_data[pos:]
-            b = encoded_data[:pos]        
-            decoded_data = base64.b64decode(a+b)
+            encoded_data = self.__rotateData(encoded_data, rotate_count)
+            decoded_data = base64.b64decode(encoded_data)
         except Exception as e:
             print("Error!\nDeconding error on [", encoded_data, "] : ", str(e))
         
         finally:
+            string = decoded_data.decode('utf-8')
+            print(string)
             return decoded_data
 
-    def encodeData(self, shift, data):
+    def encodeData(self, rotate_count, data):
         encoded_data = b""
         try:
             encoded_data = base64.b64encode(data)
+            encoded_data = self.__rotateData(encoded_data, rotate_count)
         except Exception as e:
             print("encoding error in ", data, ", ", str(e))
-        else:
-            a = encoded_data[:shift]
-            b = encoded_data[shift:]
-            encoded_data = b + a
         finally:
             return encoded_data
-
-    def __isNumber(self, data):
-        len = len(data)
-        for num in data:
-            for a in range(0,9):
-                print(a)
-        return true
 
     def __decodingAndWrite(self, line, file):
         index1 = line.find(self.__s_str)
@@ -97,9 +96,6 @@ class dltDecoder:
             newFile.close()
         
     def __run(self):
-        if self.__argc < 2:
-            self.printUsage()
-            return
         self.dir = self.__argv[1]
         try:
             file_list = self.getFileList(self.dir)
@@ -178,8 +174,8 @@ a = dltDecoder(len(sys.argv), sys.argv)
 if len(sys.argv) > 2:
     data = sys.argv[2].encode()
     if sys.argv[1] == "-d":
-        print("Encoding....", data)
-        print(a.decodeData(5, data))
+        print("Decoding....", data)
+        print(a.decodeData(-5, data))
     elif sys.argv[1] == "-e":
         print(a.encodeData(5, data))
     else:
