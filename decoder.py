@@ -11,7 +11,6 @@ class dltDecoder:
     __exec = ""
     __s_str = b"p{d"    # start string of encoded persnonal data
     __e_str = b"d}p"    # end string of encoded persnonal data
-    __shift = 5         # shift of base64 when it is encoded
 
     def __init__(self, argc, argv):
         self.__argc = argc
@@ -95,24 +94,14 @@ class dltDecoder:
                         payload = parser.read_payload(file)
                         if not payload:
                             break
-
                         # get header data
                         dltheader = parser.get_header_data()
-
                         # decoding...
                         decoded_payload = self.__decode_payload(payload)
-
                         if payload != decoded_payload:
-                            # print("")
-                            # print("*** dltheader:       ", dltheader)
                             dltheader = parser.update_payload_length(dltheader, len(decoded_payload))
-                            # print("*** dltheader:       ", dltheader)
-                            # print("*** payload:         ", payload)
-                            # print("*** decoded_payload: ", decoded_payload)
-
                         # write header data to the new file
                         newFile.write(dltheader)
-
                         # write payload to the new file
                         newFile.write(decoded_payload)
                         # newFile.write(payload)
@@ -174,7 +163,6 @@ def convertDlt2Txt():
     for x in os.listdir("."):
         if not x.endswith("dlt"):
             continue
-
         basename = os.path.splitext(x)[0]
         print('Converting for ' + basename)
         cmd = "dlt-viewer -s -u -c %s %s.log &> /dev/null" % (x, basename)
@@ -182,13 +170,6 @@ def convertDlt2Txt():
             print("dlt-viewer error")
             error = True
             break
-
-    #    cmd = "rm " + x
-    #   if os.system(cmd):
-    #       print("rm error")
-    #       error = True
-    #       break
-
     if not error:
        os.system('rm -rf index')
 
