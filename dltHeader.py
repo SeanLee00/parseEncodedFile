@@ -68,9 +68,43 @@ class dltParser:
             print(f"\n")
         self.__header_data = self.__header_data + ext_header_bytes
         return True
-        
+# [1673:1673] : 1673:1673 applyNowPlayingInfoChanged: new source: 13 old source: 13 duration: 0 mainText: p{dSBhdCBEYXduQ2l0ed}p sub1: p{dd}p sub2: p{dd}p\x00
+# 153+10+16 (6가 모자람)
+
+# [1673:1673] : 1673:1673 applyNowPlayingInfoChanged: new source: 13 old source: 13 duration: 0 mainText: p{dCity at Dawnd}p sub1: p{dd}p sub2: p{dd}p\x00
+# 149+10+16 ()
+# p{dSBhdCBEYXduQ2l0ed}p
+# p{dCity at Dawnd}p
+
+
+# *** dltheader:        b'DLT\x01 \x842g_#\xb5\x02\x00 ECU1 = k \x00\xb9 ECU1 \x00\x00\x06\x89 \x00\x03\x93\xbe A \x01 STBH NOWP \x00\x02\x00\x00\x99\x00'
+# *** dltheader:        b'DLT\x01 \x842g_#\xb5\x02\x00 ECU1 = k \x00\xb5 ECU1 \x00\x00\x06\x89 \x00\x03\x93\xbe A \x01 STBH NOWP \x00\x02\x00\x00\x"payloadlength"\x00'
+
+
+
+
     def get_header_data(self):
         return self.__header_data
+
+    def update_payload_length(self, payload_header, length):
+        payload_index_s = (self.__HEADER_SIZE + 2)
+
+        print("length:                     ", length, ",", hex(length))
+        print("self.__EXT_HEADER_SIZE:     ", self.__EXT_HEADER_SIZE, " ,", hex(self.__EXT_HEADER_SIZE))
+        print("self.__PAYLOAD_HEADER_SIZE: ", self.__PAYLOAD_HEADER_SIZE, " ,", hex(self.__PAYLOAD_HEADER_SIZE))
+        payload_length = length + self.__EXT_HEADER_SIZE + self.__PAYLOAD_HEADER_SIZE + 6
+
+        a = payload_header[:payload_index_s]
+        b = payload_header[payload_index_s+2:]
+        payload_length_bytes = payload_length.to_bytes(2, byteorder='big')
+        c = a + payload_length_bytes + b
+
+        payload_header_ = length.to_bytes(2, byteorder='big')
+        # print("c[len(payload_header)-2]: ",c[len(payload_header)-2])
+        a = c[:len(payload_header)-3]
+        b = c[len(payload_header)-1:]
+        c = a + payload_header_ + b
+        return c
 
     def read_payload(self, file):
         self.__header_data = b''

@@ -30,45 +30,6 @@ class dltDecoder:
         else:
             return file
 
-    def __get_length_index(self, line):
-        return line.rfind(b"ECU1") - 1
-
-    def __get_payload_size_index(self, line):
-        return line.rfind(b'\0', 0, len(line) - 2) - 1
-    
-    def __get_payload_size(self, line):
-        index = self.__get_payload_size_index(line)
-        return int(line[index])
-
-    def __update_payload(self, input):
-        result = b"PRESENT PERSONAL DATA"
-        expression = re.compile(b"p{d.+d}p")
-        is_match = expression.search(input)
-        if is_match:
-            texts = is_match.group()
-            line = input.decode("utf-8")
-            for text in texts:
-                etext = text[3:-3].decode("utf-8")
-                decoded_text = self.__decode(etext).encode("utf-8")
-                line = line.replace(text.decode("utf-8"), decoded_text.decode("utf-8"))
-            return line.encode("utf-8")
-        return input
-    
-    def __update(self, line):
-        payloadSize = self.__get_payload_size(line)
-        payloadSizeIndex = self.__get_payload_size_index(line)
-        lenghtIndex = self.__get_length_index(line)
-        index = self.__get_payload_size_index(line) + 1
-        payload = line[index + 1:]
-
-        newPayload = self.__update_payload(payload)
-        delta = len(newPayload) - payloadSize + 1
-        header = line[:index]
-        header[payloadSizeIndex] += delta
-        header[lenghtIndex] += delta
-        
-        return header + '\0' + newPayload
-
     def __rotateData(self, data, rotate_count):
         if rotate_count < 0:
             rotate_count = (rotate_count*-1) % len(data)
@@ -98,40 +59,33 @@ class dltDecoder:
         finally:
             return encoded_data
 
-    def __decode_and_write(self, line, file):
-        file.write(self.__update(line))
-    
-    def __decode(self, line, file):        
+    def __decode_payload(self, payload):
+        decoded_payload = payload
         try:
-            index1 = line.find(self.__s_str)
-            index2 = line.find(self.__e_str)
+            index1 = payload.find(self.__s_str)
+            index2 = payload.find(self.__e_str)
             c = ""
             while index1 != -1 and index2 != -1:
                 s_pos = index1 + len(self.__s_str)
                 e_pos = index2
-                encoded_data = line[s_pos:e_pos]                
+                encoded_data = payload[s_pos:e_pos]                
                 if e_pos - s_pos > 0:
                     decoded_data = self.decode_data(-5, encoded_data)
-                    # a = line[:s_pos - len(self.__s_str)]
-                    # b = line[e_pos + len(self.__e_str):]
-                    a = line[:s_pos]
-                    b = line[e_pos:]
-                    # a = line[:s_pos]
-                    # b = line[e_pos:]
-                    c = a + encoded_data + b
-                    print("decoded_data: ", encoded_data)
-                    file.write(c)
+                    a = payload[:s_pos]
+                    b = payload[e_pos:]
+                    decoded_payload = a + decoded_data + b
                 else:
-                    print("exit checking personal data")
-                    break
-                index1 = line.find(self.__s_str, index2 + len(self.__e_str))
-                index2 = line.find(self.__e_str, index2 + len(self.__e_str))
-            # file.write(c)
+                    print("\nexit checking personal data: ", decoded_payload)
+                    return decoded_payload
+                index1 = payload.find(self.__s_str, index2 + len(self.__e_str))
+                index2 = payload.find(self.__e_str, index2 + len(self.__e_str))
         except Exception as e:
             print(str(e))
+        finally:            
+            return decoded_payload
 
     def __do_decording(self,file_path):
-        try:            
+        try:
             with open(file_path, 'rb') as file:
                 with self.__createDecodedFile(file_path) as newFile:
                     print("newFile:", newFile)
@@ -141,33 +95,43 @@ class dltDecoder:
                         payload = parser.read_payload(file)
                         if not payload:
                             break
-                        # get heade data
+
+                        # get header data
                         dltheader = parser.get_header_data()
+
+                        # decoding...                
+                        decoded_payload = self.__decode_payload(payload)                        
+
+                        if payload != decoded_payload:
+                            print("")
+                            print("*** dltheader:       ", dltheader)
+                            dltheader = parser.update_payload_length(dltheader, len(decoded_payload))
+                            print("*** dltheader:       ", dltheader)
+                            print("*** payload:         ", payload)
+                            print("*** decoded_payload: ", decoded_payload)
+                        
                         # write header data to the new file
                         newFile.write(dltheader)
-                        # write payload data to the new file
-                        newFile.write(payload)
-            for line in file:
-                self.__decode_and_write(line, newFile)
+
+                        # write payload to the new file
+                        newFile.write(decoded_payload)
+                        # newFile.write(payload)
         except Exception as e:
             print(str(e))
         
-    def __run(self):
-        self.dir = self.__argv[1]
-        try:
-            file_list = self.getFileList(self.dir)
-            for file_path in file_list:
-                print("file_path: ", file_path)
-                self.__do_decording(file_path)
-        except Exception as e:
-            print(str(e))
-
     def decoding(self):
         print("decoding")
         if self.__argc != 2:
             self.printUsage()
         else:
-            self.__run()
+            self.dir = self.__argv[1]
+            try:
+                file_list = self.getFileList(self.dir)
+                for file_path in file_list:
+                    print("file_path: ", file_path)
+                    self.__do_decording(file_path)
+            except Exception as e:
+                print(str(e))
 
     def getFileList(self, dir):
         index = 0
