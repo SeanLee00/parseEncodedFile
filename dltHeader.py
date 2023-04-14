@@ -13,20 +13,25 @@ class dltParser:
     __PAYLOAD_HEADER_SIZE = 16
     __EXT_HEADER_SIZE = 10
     __header_data = b''
+    __active_debug = False
+
+    def __init__(self, debug = False):
+        self.__active_debug = debug
 
     def __read_header(self, file):
         header_bytes = file.read(self.__HEADER_SIZE)
         if not header_bytes:
             print('End of file')
             return False
-        print(f"header_bytes: {header_bytes}, (", len(header_bytes), ")")
         magic, sec, msec, ecu_id = struct.unpack(self.__DLT_HEADER_FMT, header_bytes)
         # magic = magic.decode('ascii')
-        print(f"Magic number: {magic}")
-        print(f"sec: {sec}")
-        print(f"msec: {msec}")
-        print(f"ECU ID: {ecu_id}")
-        print(f"\n")
+        if self.__active_debug:
+            print(f"header_bytes: {header_bytes}, (", len(header_bytes), ")")
+            print(f"Magic number: {magic}")
+            print(f"sec: {sec}")
+            print(f"msec: {msec}")
+            print(f"ECU ID: {ecu_id}")
+            print(f"\n")
         self.__header_data = self.__header_data + header_bytes
         return True
 
@@ -35,15 +40,16 @@ class dltParser:
         if not payload_header_bytes:
             print('End of file')
             return 0
-        print(f"payload_header_bytes: {payload_header_bytes}, (", len(payload_header_bytes), ")")
         header_type, msg_cnt, payload_len, ecu_id, ss_id, timestamp = struct.unpack(self.__DLT_PAYLOAD_HEADER_FMT, payload_header_bytes)
         # magic = magic.decode('ascii')
-        print(f"header_type: {header_type}")
-        print(f"msg_cnt: {msg_cnt}")
-        print(f"payload_len: {payload_len}")
-        print(f"ecu_id: {ecu_id}")
-        print(f"timestamp: {timestamp}")
-        print(f"\n")
+        if self.__active_debug:
+            print(f"payload_header_bytes: {payload_header_bytes}, (", len(payload_header_bytes), ")")
+            print(f"header_type: {header_type}")
+            print(f"msg_cnt: {msg_cnt}")
+            print(f"payload_len: {payload_len}")
+            print(f"ecu_id: {ecu_id}")
+            print(f"timestamp: {timestamp}")
+            print(f"\n")
         self.__header_data = self.__header_data + payload_header_bytes
         return payload_len
 
@@ -52,14 +58,14 @@ class dltParser:
         if not ext_header_bytes:
             print('End of file')
             return False
-        print(f"ext_header_bytes: {ext_header_bytes}, (", len(ext_header_bytes), ")")
         msg_info, num_arg, app_id, ctx_id = struct.unpack(self.__DLT_EXT_HEADER_FMT, ext_header_bytes)
-
-        print(f"msg_info: {msg_info}")
-        print(f"num_arg: {num_arg}")
-        print(f"app_id: {app_id}")
-        print(f"ctx_id: {ctx_id}")
-        print(f"\n")
+        if self.__active_debug:
+            print(f"ext_header_bytes: {ext_header_bytes}, (", len(ext_header_bytes), ")")
+            print(f"msg_info: {msg_info}")
+            print(f"num_arg: {num_arg}")
+            print(f"app_id: {app_id}")
+            print(f"ctx_id: {ctx_id}")
+            print(f"\n")
         self.__header_data = self.__header_data + ext_header_bytes
         return True
         
@@ -80,7 +86,8 @@ class dltParser:
         if not payload:
             print('End of file in payload')
             return b''
-        print(f"payload: {payload}")
+        if self.__active_debug:
+            print(f"payload: {payload}")
         return payload
 
 # # Open the DLT file and read the first 28 bytes (file header)

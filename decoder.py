@@ -131,24 +131,29 @@ class dltDecoder:
             print(str(e))
 
     def __do_decording(self,file_path):
-        try:
-            file = open(file_path, "rb")
-            newFile = self.__createDecodedFile(file_path)
-            print("newFile:", newFile)
+        try:            
+            with open(file_path, 'rb') as file:
+                with self.__createDecodedFile(file_path) as newFile:
+                    print("newFile:", newFile)
+                    parser = dltHeader.dltParser()
+                    while True:
+                        # read payload
+                        payload = parser.read_payload(file)
+                        if not payload:
+                            break
+                        # get heade data
+                        dltheader = parser.get_header_data()
+                        # write header data to the new file
+                        newFile.write(dltheader)
+                        # write payload data to the new file
+                        newFile.write(payload)
             for line in file:
                 self.__decode_and_write(line, newFile)
         except Exception as e:
             print(str(e))
-        finally:
-            print("file closed")
-            file.close()
-            newFile.close()
         
     def __run(self):
         self.dir = self.__argv[1]
-        print("__run")
-        print(self.__argv[1])
-        print(self.dir)
         try:
             file_list = self.getFileList(self.dir)
             for file_path in file_list:
@@ -237,8 +242,4 @@ if len(sys.argv) > 2:
 elif len(sys.argv) > 1 and sys.argv[1] == "-c" :
     convertDlt2Txt()
 else:
-    # a.decoding()
-    with open('log_1_20200920-104358.dlt', 'rb') as file:
-        parser = dltHeader.dltParser()
-        parser.read_payload(file)
-        print(parser.get_header_data())
+    a.decoding()
