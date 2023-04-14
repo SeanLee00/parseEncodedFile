@@ -70,28 +70,19 @@ class dltParser:
         return True
 # [1673:1673] : 1673:1673 applyNowPlayingInfoChanged: new source: 13 old source: 13 duration: 0 mainText: p{dSBhdCBEYXduQ2l0ed}p sub1: p{dd}p sub2: p{dd}p\x00
 # 153+10+16 (6가 모자람)
-
 # [1673:1673] : 1673:1673 applyNowPlayingInfoChanged: new source: 13 old source: 13 duration: 0 mainText: p{dCity at Dawnd}p sub1: p{dd}p sub2: p{dd}p\x00
-# 149+10+16 ()
-# p{dSBhdCBEYXduQ2l0ed}p
-# p{dCity at Dawnd}p
-
-
-# *** dltheader:        b'DLT\x01 \x842g_#\xb5\x02\x00 ECU1 = k \x00\xb9 ECU1 \x00\x00\x06\x89 \x00\x03\x93\xbe A \x01 STBH NOWP \x00\x02\x00\x00\x99\x00'
-# *** dltheader:        b'DLT\x01 \x842g_#\xb5\x02\x00 ECU1 = k \x00\xb5 ECU1 \x00\x00\x06\x89 \x00\x03\x93\xbe A \x01 STBH NOWP \x00\x02\x00\x00\x"payloadlength"\x00'
-
-
-
-
+# *** dltheader:        b'DLT\x01 \x842g_#\xb5\x02\x00 ECU1 = k \x00\xb9 ECU1 \x00\x00\x06\x89 \x00\x03\x93\xbe A \x01 STBH NOWP \x00\x02\x00 \x00\x99 \x00'
+# *** dltheader:        b'DLT\x01 \x842g_#\xb5\x02\x00 ECU1 = k \x00\xb5 ECU1 \x00\x00\x06\x89 \x00\x03\x93\xbe A \x01 STBH NOWP \x00\x02\x00 \x00\x99 \x00'
+                                                                #message length                                                               payload length
     def get_header_data(self):
         return self.__header_data
 
     def update_payload_length(self, payload_header, length):
         payload_index_s = (self.__HEADER_SIZE + 2)
 
-        print("length:                     ", length, ",", hex(length))
-        print("self.__EXT_HEADER_SIZE:     ", self.__EXT_HEADER_SIZE, " ,", hex(self.__EXT_HEADER_SIZE))
-        print("self.__PAYLOAD_HEADER_SIZE: ", self.__PAYLOAD_HEADER_SIZE, " ,", hex(self.__PAYLOAD_HEADER_SIZE))
+        # print("length:                     ", length, ",", hex(length))
+        # print("self.__EXT_HEADER_SIZE:     ", self.__EXT_HEADER_SIZE, " ,", hex(self.__EXT_HEADER_SIZE))
+        # print("self.__PAYLOAD_HEADER_SIZE: ", self.__PAYLOAD_HEADER_SIZE, " ,", hex(self.__PAYLOAD_HEADER_SIZE))
         payload_length = length + self.__EXT_HEADER_SIZE + self.__PAYLOAD_HEADER_SIZE + 6
 
         a = payload_header[:payload_index_s]
@@ -132,7 +123,7 @@ class dltParser:
 #     # print("aaa", header)
 #     # unpack the header data using the format string ">4sB3s3sQ"
 #     # a, b, c, d, message_length = struct.unpack(">4sB3s3sQ", header)
-    
+
 #     # print the payload length
 #     # print(f"Payload Length: {message_length}")
 #     # while False:

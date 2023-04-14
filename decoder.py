@@ -12,7 +12,7 @@ class dltDecoder:
     __s_str = b"p{d"    # start string of encoded persnonal data
     __e_str = b"d}p"    # end string of encoded persnonal data
     __shift = 5         # shift of base64 when it is encoded
-    
+
     def __init__(self, argc, argv):
         self.__argc = argc
         self.__argv = argv
@@ -45,7 +45,7 @@ class dltDecoder:
             decoded_data = base64.b64decode(encoded_data)
         except Exception as e:
             print("Error!\nDeconding error on [", encoded_data, "] : ", str(e))
-        
+
         finally:
             return decoded_data
 
@@ -68,11 +68,11 @@ class dltDecoder:
             while index1 != -1 and index2 != -1:
                 s_pos = index1 + len(self.__s_str)
                 e_pos = index2
-                encoded_data = payload[s_pos:e_pos]                
+                encoded_data = payload[s_pos:e_pos]
                 if e_pos - s_pos > 0:
                     decoded_data = self.decode_data(-5, encoded_data)
-                    a = payload[:s_pos]
-                    b = payload[e_pos:]
+                    a = payload[:s_pos - len(self.__s_str)]
+                    b = payload[e_pos + len(self.__e_str):]
                     decoded_payload = a + decoded_data + b
                 else:
                     print("\nexit checking personal data: ", decoded_payload)
@@ -81,7 +81,7 @@ class dltDecoder:
                 index2 = payload.find(self.__e_str, index2 + len(self.__e_str))
         except Exception as e:
             print(str(e))
-        finally:            
+        finally:
             return decoded_payload
 
     def __do_decording(self,file_path):
@@ -99,17 +99,17 @@ class dltDecoder:
                         # get header data
                         dltheader = parser.get_header_data()
 
-                        # decoding...                
-                        decoded_payload = self.__decode_payload(payload)                        
+                        # decoding...
+                        decoded_payload = self.__decode_payload(payload)
 
                         if payload != decoded_payload:
-                            print("")
-                            print("*** dltheader:       ", dltheader)
+                            # print("")
+                            # print("*** dltheader:       ", dltheader)
                             dltheader = parser.update_payload_length(dltheader, len(decoded_payload))
-                            print("*** dltheader:       ", dltheader)
-                            print("*** payload:         ", payload)
-                            print("*** decoded_payload: ", decoded_payload)
-                        
+                            # print("*** dltheader:       ", dltheader)
+                            # print("*** payload:         ", payload)
+                            # print("*** decoded_payload: ", decoded_payload)
+
                         # write header data to the new file
                         newFile.write(dltheader)
 
@@ -118,7 +118,7 @@ class dltDecoder:
                         # newFile.write(payload)
         except Exception as e:
             print(str(e))
-        
+
     def decoding(self):
         print("decoding")
         if self.__argc != 2:
@@ -153,7 +153,7 @@ class dltDecoder:
                     file_list.append(file_path)
                     index += 1
         return file_list
-    
+
     def printUsage(self):
         print("Usage >")
         print(sys.argv[0], " option data")
