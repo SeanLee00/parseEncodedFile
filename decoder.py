@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-
 import sys
 import os
 import base64
+import re
+import dltHeader
 
 class dltDecoder:
     __argc = 0
@@ -29,6 +30,45 @@ class dltDecoder:
         else:
             return file
 
+    def __get_length_index(self, line):
+        return line.rfind(b"ECU1") - 1
+
+    def __get_payload_size_index(self, line):
+        return line.rfind(b'\0', 0, len(line) - 2) - 1
+    
+    def __get_payload_size(self, line):
+        index = self.__get_payload_size_index(line)
+        return int(line[index])
+
+    def __update_payload(self, input):
+        result = b"PRESENT PERSONAL DATA"
+        expression = re.compile(b"p{d.+d}p")
+        is_match = expression.search(input)
+        if is_match:
+            texts = is_match.group()
+            line = input.decode("utf-8")
+            for text in texts:
+                etext = text[3:-3].decode("utf-8")
+                decoded_text = self.__decode(etext).encode("utf-8")
+                line = line.replace(text.decode("utf-8"), decoded_text.decode("utf-8"))
+            return line.encode("utf-8")
+        return input
+    
+    def __update(self, line):
+        payloadSize = self.__get_payload_size(line)
+        payloadSizeIndex = self.__get_payload_size_index(line)
+        lenghtIndex = self.__get_length_index(line)
+        index = self.__get_payload_size_index(line) + 1
+        payload = line[index + 1:]
+
+        newPayload = self.__update_payload(payload)
+        delta = len(newPayload) - payloadSize + 1
+        header = line[:index]
+        header[payloadSizeIndex] += delta
+        header[lenghtIndex] += delta
+        
+        return header + '\0' + newPayload
+
     def __rotateData(self, data, rotate_count):
         if rotate_count < 0:
             rotate_count = (rotate_count*-1) % len(data)
@@ -38,8 +78,7 @@ class dltDecoder:
         data = data[rotate_count:] + data[:rotate_count]
         return data
 
-    def decodeData(self, rotate_count, encoded_data):
-        decoded_data = b""
+    def decode_data(self, rotate_count, encoded_data):
         try:
             encoded_data = self.__rotateData(encoded_data, rotate_count)
             decoded_data = base64.b64decode(encoded_data)
@@ -47,11 +86,9 @@ class dltDecoder:
             print("Error!\nDeconding error on [", encoded_data, "] : ", str(e))
         
         finally:
-            string = decoded_data.decode('utf-8')
-            print(string)
             return decoded_data
 
-    def encodeData(self, rotate_count, data):
+    def encode_data(self, rotate_count, data):
         encoded_data = b""
         try:
             encoded_data = base64.b64encode(data)
@@ -61,33 +98,45 @@ class dltDecoder:
         finally:
             return encoded_data
 
-    def __decodingAndWrite(self, line, file):
-        index1 = line.find(self.__s_str)
-        index2 = line.find(self.__e_str)
-        if index1 != -1 and index2 != -1:
-            # print(line)
-            s_pos = line.find(self.__s_str) + len(self.__s_str)
-            e_pos = line.find(self.__e_str)
-            encoded_data = line[s_pos:e_pos]
-            c = line
-            try:
-                decoded_dtat = self.decodeData(self.__shift, encoded_data)
-                a = line[:s_pos - len(self.__s_str)]
-                b = line[e_pos + len(self.__e_str):]
-                c = a + decoded_dtat + b
-            except Exception as e:
-                print(str(e))
-            finally:
-                file.write(c)
-        else:
-            file.write(line)
+    def __decode_and_write(self, line, file):
+        file.write(self.__update(line))
+    
+    def __decode(self, line, file):        
+        try:
+            index1 = line.find(self.__s_str)
+            index2 = line.find(self.__e_str)
+            c = ""
+            while index1 != -1 and index2 != -1:
+                s_pos = index1 + len(self.__s_str)
+                e_pos = index2
+                encoded_data = line[s_pos:e_pos]                
+                if e_pos - s_pos > 0:
+                    decoded_data = self.decode_data(-5, encoded_data)
+                    # a = line[:s_pos - len(self.__s_str)]
+                    # b = line[e_pos + len(self.__e_str):]
+                    a = line[:s_pos]
+                    b = line[e_pos:]
+                    # a = line[:s_pos]
+                    # b = line[e_pos:]
+                    c = a + encoded_data + b
+                    print("decoded_data: ", encoded_data)
+                    file.write(c)
+                else:
+                    print("exit checking personal data")
+                    break
+                index1 = line.find(self.__s_str, index2 + len(self.__e_str))
+                index2 = line.find(self.__e_str, index2 + len(self.__e_str))
+            # file.write(c)
+        except Exception as e:
+            print(str(e))
 
-    def __doDecording(self,file_path):
+    def __do_decording(self,file_path):
         try:
             file = open(file_path, "rb")
             newFile = self.__createDecodedFile(file_path)
+            print("newFile:", newFile)
             for line in file:
-                self.__decodingAndWrite(line, newFile)
+                self.__decode_and_write(line, newFile)
         except Exception as e:
             print(str(e))
         finally:
@@ -97,14 +146,19 @@ class dltDecoder:
         
     def __run(self):
         self.dir = self.__argv[1]
+        print("__run")
+        print(self.__argv[1])
+        print(self.dir)
         try:
             file_list = self.getFileList(self.dir)
             for file_path in file_list:
-                self.__doDecording(file_path)
+                print("file_path: ", file_path)
+                self.__do_decording(file_path)
         except Exception as e:
             print(str(e))
 
     def decoding(self):
+        print("decoding")
         if self.__argc != 2:
             self.printUsage()
         else:
@@ -142,7 +196,7 @@ class dltDecoder:
         print("\t-d [data]: deconding for input data")
         print("\t\t", sys.argv[0],  " -d  GVmZw==YWJjZ")
         print("\t-c [dlt file]: convert dlt to text")
-        print("\t\t", sys.argv[0],  " -c  test.dlt")
+        print("\t\t", sys.argv[0],  " -c")
 
 def convertDlt2Txt():
     os.environ['QT_QPA_PLATFORM'] = 'offscreen'
@@ -177,10 +231,14 @@ if len(sys.argv) > 2:
         print("Decoding....", data)
         print(a.decodeData(-5, data))
     elif sys.argv[1] == "-e":
-        print(a.encodeData(5, data))
+        print(a.encode_data(5, data))
     else:
         a.printUsage()
 elif len(sys.argv) > 1 and sys.argv[1] == "-c" :
     convertDlt2Txt()
 else:
-    a.decoding()
+    # a.decoding()
+    with open('log_1_20200920-104358.dlt', 'rb') as file:
+        parser = dltHeader.dltParser()
+        parser.read_payload(file)
+        print(parser.get_header_data())
