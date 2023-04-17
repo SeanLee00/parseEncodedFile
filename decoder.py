@@ -2,20 +2,17 @@
 import sys
 import os
 import base64
-import re
 import dltHeader
 
 class dltDecoder:
     __argc = 0
     __argv = []
-    __exec = ""
     __s_str = b"p{d"    # start string of encoded persnonal data
     __e_str = b"d}p"    # end string of encoded persnonal data
 
     def __init__(self, argc, argv):
         self.__argc = argc
         self.__argv = argv
-        self.__exec = argv[0]
 
     def __createDecodedFile(self,file_path):
         index = file_path.find(".dlt")
