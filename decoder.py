@@ -176,7 +176,7 @@ if len(sys.argv) > 2:
     data = sys.argv[2].encode()
     if sys.argv[1] == "-d":
         print("Decoding....", data)
-        print(a.decodeData(-5, data))
+        print(a.decode_data(-5, data))
     elif sys.argv[1] == "-e":
         print(a.encode_data(5, data))
     else:
