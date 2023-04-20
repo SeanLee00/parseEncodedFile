@@ -1,8 +1,0 @@
-0 2022/10/26 23:02:12.633715 14060.2731 151 ECU1 DABS dDRV 1094 log debug verbose 1 [1094:1131] : =============== Initial data (Special line) =====================
-1 2022/10/26 23:02:12.633726 14060.2731 152 ECU1 DABS dDRV 1094 log debug verbose 1 [1094:1132] : Driver Name (personal data): p{diBIdWJhbm92SWhvcd}p
-2 2022/10/26 23:02:12.633737 14060.2731 153 ECU1 DABS dDRV 1094 log debug verbose 1 [1094:1133] : Coordinates (personal data): p{dDQ0JzMwLjgyMiIsIDczwrA1OScyMS41MDgiNDDCsd}p
-3 2022/10/26 23:02:12.633748 14060.2732 154 ECU1 DABS dDRV 1094 log debug verbose 1 [1094:1134] : Coordinates (non personal data): '40°44'30.822", 73°59'21.508"'
-4 2022/10/26 23:02:12.633759 14060.2732 64 ECU1 DABS dabH 1094 log debug verbose 1 [1094:1135] : Phone number(personal data): p{dQQ%A#REE^Q^Z#Zd}p
-5 2022/10/26 23:02:12.633770 14060.2732 65 ECU1 DABS dabH 1094 log debug verbose 1 [1094:1136] : The same phone number another format (personal data): p{dDA1MCkzMzItMTUtNjctNzg=KzM4Kd}p
-6 2022/10/26 23:02:12.633781 14060.2732 68 ECU1 DABS dRCV 1094 log debug verbose 1 [1094:1137] : Very specific text, like encoded text(non personal data): p{diBIdWJhbm92SWhvcp}p
-7 2022/10/26 23:02:12.633792 14060.2733 166 ECU1 DABS DABS 1094 log debug verbose 1 [1094:1138] : =============== Final (End line) =====================
