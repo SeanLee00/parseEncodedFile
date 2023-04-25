@@ -79,7 +79,7 @@ class dltEnDecoder:
             print(str(e))
         finally:
             return decoded_payload
-    __cnt = 0
+
     def __do_decording(self,file_path):
         try:
             with open(file_path, 'rb') as file:
@@ -87,12 +87,6 @@ class dltEnDecoder:
                     print("newFile:", newFile)
                     parser = dltHeader.dltParser()
                     while True:
-                        # read payload
-                        self.__cnt = self.__cnt + 1
-                        if 266206 == self.__cnt:
-                            parser.debug(True)
-                        else:
-                            parser.debug(False)
                         payload = parser.read_payload(file)
                         if not payload:
                             break
@@ -101,16 +95,7 @@ class dltEnDecoder:
                         # decoding...
                         decoded_payload = self.__decode_payload(payload)
                         if payload != decoded_payload:
-                            if 266206 == self.__cnt:
-                                print("==============================================")
-                                dltheader1 = dltheader
-                                dltheader = parser.update_header_info(dltheader, len(decoded_payload))
-                                print("\npayload\t\t: ", payload)
-                                print("decoded_payload\t: ", decoded_payload)
-                                print("dltheader1: ", dltheader1)
-                                print("dltheader2: ", dltheader)
-                            else:
-                                dltheader = parser.update_header_info(dltheader, len(decoded_payload))
+                            dltheader = parser.update_header_info(dltheader, len(decoded_payload))
                         # write header data to the new file
                         newFile.write(dltheader)
                         # write payload to the new file

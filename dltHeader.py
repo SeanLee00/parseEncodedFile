@@ -139,10 +139,21 @@ class dltParser:
         # read extend header
         payload_length_bin, ext_header = self.__read_ext_header(file)
         payload_length = int.from_bytes(payload_length_bin, byteorder='little')
+        payload_length1 = int.from_bytes(payload_length_bin, byteorder='big')
 
         if payload_length != (mesage_len - 32):
             print('=> Error! payload_length is ', payload_length)
-            payload_length = mesage_len - 32
+            print('=> Error! payload_length1 is ', payload_length1)
+            # payload_length = mesage_len - 32
+
+            print(f"\ndlt_header\t: {dlt_header}")
+            print(f"message_header\t: {message_header}")
+            print(f"ext_header\t: {ext_header}")
+            print(f"payload_length\t: {payload_length}")
+            print(f"mesage_len\t: {mesage_len}")
+            print(f"header_data\t: {self.__header_data}")
+            print(f"payload\t\t: {payload}\n")
+            return b''
         
         payload = file.read(payload_length)
 
