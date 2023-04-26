@@ -100,7 +100,6 @@ class dltEnDecoder:
                         newFile.write(dltheader)
                         # write payload to the new file
                         newFile.write(decoded_payload)
-                        # newFile.write(payload)
         except Exception as e:
             print(str(e))
 
