@@ -77,6 +77,7 @@ class dltParser:
             print(f"length: {message_len}")
             print(f"ecu_id: {ecu_id}")
             print(f"timestamp: {timestamp}")
+            print(f"ss_id: {ss_id}")
             print(f"\n")
         return [message_len, message_header_bytes]
 
@@ -139,22 +140,24 @@ class dltParser:
         # read extend header
         payload_length_bin, ext_header = self.__read_ext_header(file)
         payload_length = int.from_bytes(payload_length_bin, byteorder='little')
-        payload_length1 = int.from_bytes(payload_length_bin, byteorder='big')
 
-        if payload_length != (mesage_len - 32):
-            print('=> Error! payload_length is ', payload_length)
-            print('=> Error! payload_length1 is ', payload_length1)
-            # payload_length = mesage_len - 32
+        if payload_length != (mesage_len - self.__MESSAGE_HEADER_SIZE - self.__EXT_HEADER_SIZE):
+            # I didn't find out why the payload length is not the same as I expected....
+            # however if there is a wrong payload length, it needs to change the length based on message length.
+            # so that it will read the correct payload from the dlt log files.
+            # print('\n=> Error! payload_length is ', payload_length)
+            payload_length = mesage_len - self.__MESSAGE_HEADER_SIZE - self.__EXT_HEADER_SIZE
 
-            print(f"\ndlt_header\t: {dlt_header}")
-            print(f"message_header\t: {message_header}")
-            print(f"ext_header\t: {ext_header}")
-            print(f"payload_length\t: {payload_length}")
-            print(f"mesage_len\t: {mesage_len}")
-            print(f"header_data\t: {self.__header_data}")
-            print(f"payload\t\t: {payload}\n")
-            return b''
-        
+            # print(f"dlt_header\t: {dlt_header}")
+            # print(f"message_header\t: {message_header}")
+            # print(f"ext_header\t: {ext_header}")
+            # print(f"payload_length\t: {payload_length}")
+            # print(f"mesage_len\t: {mesage_len}")
+            # print(f"header_data\t: {self.__header_data}")
+            # payload = file.read(payload_length)
+            # print(f"payload\t: {payload}")
+            # return b''
+        # else:
         payload = file.read(payload_length)
 
         # update header data
@@ -171,12 +174,12 @@ class dltParser:
 
         if not payload:
             print('End of file in payload')
-            print(f"\ndlt_header\t: {dlt_header}")
-            print(f"message_header\t: {message_header}")
-            print(f"ext_header\t: {ext_header}")
-            print(f"payload_length\t: {payload_length}")
-            print(f"mesage_len\t: {mesage_len}")
-            print(f"header_data\t: {self.__header_data}")
-            print(f"payload\t\t: {payload}\n")
+            # print(f"\ndlt_header\t: {dlt_header}")
+            # print(f"message_header\t: {message_header}")
+            # print(f"ext_header\t: {ext_header}")
+            # print(f"payload_length\t: {payload_length}")
+            # print(f"mesage_len\t: {mesage_len}")
+            # print(f"header_data\t: {self.__header_data}")
+            # print(f"payload\t\t: {payload}\n")
             return b''
         return payload
