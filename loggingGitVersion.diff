@@ -1,0 +1,27 @@
+diff --git a/src/main.cpp b/src/main.cpp
+index 2800476..1271d02 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -14,6 +14,8 @@ ccos::HInt32 main(ccos::HInt32 argc, char* argv[]) {
+         std::string desc = "StatusBarHmi Application";
+         Logger::initialize(id, desc);
+ 
++        HInfo() << "version: " << APP_GIT_REVISION;
++
+         appcommon::AppEngine engine;
+ 
+         if (engine.init() == false) {
+diff --git a/statusbarhmiapp.pro b/statusbarhmiapp.pro
+index 3538584..7c11aac 100644
+--- a/statusbarhmiapp.pro
++++ b/statusbarhmiapp.pro
+@@ -30,6 +30,9 @@ DESKTOP {
+     DEFINES += DESKTOP_HOST
+ }
+ 
++load(git_utils.prf)
++DEFINES *= APP_GIT_REVISION=\""\\\"$$appGitRevision()\\\""\"
++
+ CONFIG(debug, debug|release) {
+     message(debug)
+ } else {
