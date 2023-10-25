@@ -106,22 +106,27 @@ class dltEnDecoder:
     def decode_data(self, rotate_count, encoded_data):
         try:
             encoded_data = self.__rotateData(encoded_data, rotate_count)
+            print("\nencoded data: ", encoded_data)
+            print("\n")
             decoded_data = base64.b64decode(encoded_data)
         except Exception as e:
             print("Error!\nDeconding error on [", encoded_data, "] : ", str(e))
 
         finally:
-            return decoded_data
+            unicode_string = decoded_data.decode('utf-8')
+            return unicode_string
 
     def encode_data(self, rotate_count, data):
         encoded_data = b""
         try:
-            encoded_data = base64.b64encode(data)
-            encoded_data = self.__rotateData(encoded_data, rotate_count)
+            data_bytes = data.encode('utf-8') 
+            encoded_data = base64.b64encode(data_bytes)
+            # encoded_data = self.__rotateData(encoded_data, rotate_count)
         except Exception as e:
             print("encoding error in ", data, ", ", str(e))
         finally:
-            return encoded_data
+            unicode_string = encoded_data.decode('utf-8')
+            return unicode_string
 
     def decode(self):
         print("decoding")
@@ -130,10 +135,10 @@ class dltEnDecoder:
         else:
             self.dir = self.__argv[1]
             try:
-                file_list = self.__getFileList(self.dir)
-                for file_path in file_list:
-                    print("file_path: ", file_path)
-                    self.__do_decording(file_path)
+                # file_list = self.__getFileList(self.dir)
+                # for file_path in file_list:
+                    print("file_path: ", "./log_1_20231024-114122.dlt")
+                    self.__do_decording("./log_1_20231024-114122.dlt")
             except Exception as e:
                 print(str(e))
         return True

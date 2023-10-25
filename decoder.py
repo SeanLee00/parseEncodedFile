@@ -38,7 +38,8 @@ dlt_decoder = dltEnDecoder.dltEnDecoder(len(sys.argv), sys.argv)
 if len(sys.argv) > 2:
     data = sys.argv[2]
     if sys.argv[1] == "-d":
-        print("Decoding....", data)
+        print("Decoding....\n", data)
+        print("\n\n")
         print(dlt_decoder.decode_data(-5, data))
     elif sys.argv[1] == "-e":
         print(dlt_decoder.encode_data(5, data))
