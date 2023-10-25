@@ -43,6 +43,8 @@ class dltParser:
     __header_data = b''
     __active_debug = False
 
+    __CHUNK_SIZE = 256
+
     def __init__(self, debug = False):
         self.__active_debug = debug
 
@@ -98,8 +100,8 @@ class dltParser:
             print(f"\n")
         return [payload_length, ext_header_bytes]
 # 153+10+16 (6 마지막 6byte에 payload length가 기록됨)
-# *** dltheader:        b'DLT\x01 \x842g_#\xb5\x02\x00 ECU1 = k \x00\xb5        ECU1 \x00\x00\x06\x89 \x00\x03\x93\xbe A \x01 STBH NOWP \x00\x02\x00\x00  \x99\x00'
-                                                                #message length                                                                            payload length
+# *** dltheader:	DLT\x01\x04rFd\xa7k\x00\x00ECU1	=H		\x03\xef		ECU1\x00\x00\x16\xec\x01.v\xce	A\x01SPOPSPOP		\x00\x02\x00\x00	\xcf\x03
+#			        DLT-pattern&timestamp		Base-header	<message length>	Base-header			        Extended-header		Payload-data		<payload length>
 # dltheader_org:        b'DLT\x01\xb2qg_4\xfe\x0b\x00ECU1=\n\x01L   ECU1\x00\x00T\xcf\t\xa7\x9b?A\x01PUMGPUMG\x00\x02\x00\x00  ,   \x01'
 # dltheader_updated:    b'DLT\x01\xb2qg_4\xfe\x0b\x00ECU1=\n\x01\x1cECU1\x00\x00T\xcf\t\xa7\x9b?A\x01PUMGPUMG\x00\x02\x00\x00  \xfc\x01'
     def get_header_data(self):
