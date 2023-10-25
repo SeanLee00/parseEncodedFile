@@ -3,7 +3,7 @@ import sys
 import os
 import dltEnDecoder
 
-def printUsage(self):
+def printUsage():
     print("Usage >")
     print(sys.argv[0], " option data")
     print("\n\t[directory or file path] : deconding all dlt files under 'directory_path'")
