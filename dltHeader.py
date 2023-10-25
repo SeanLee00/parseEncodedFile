@@ -44,6 +44,7 @@ class dltParser:
     __active_debug = False
 
     __CHUNK_SIZE = 256
+    __ENDOFFILE = False
 
     def __init__(self, debug = False):
         self.__active_debug = debug
@@ -134,6 +135,7 @@ class dltParser:
         dlt_header = self.__read_header(file)
         if dlt_header == b'':
             print('End of file in header')
+            self.__ENDOFFILE = True
             return b''
         
         # read message header
@@ -168,3 +170,5 @@ class dltParser:
             print('End of file in payload')
             return b''
         return payload
+    def isFileEnd(self):
+        return self.__ENDOFFILE

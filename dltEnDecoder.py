@@ -88,9 +88,11 @@ class dltEnDecoder:
                     parser = dltHeader.dltParser()
                     while True:
                         payload = parser.read_payload(file)
-                        if not payload:
-                            break
+                        # if not payload:
+                            # break
                         # get header data
+                        if parser.isFileEnd():
+                            break
                         dltheader = parser.get_header_data()
                         # decoding...
                         decoded_payload = self.__decode_payload(payload)
