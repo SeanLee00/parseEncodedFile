@@ -56,6 +56,7 @@ class dltParser:
         header_bytes = file.read(self.__DLT_HEADER_SIZE)
         if not header_bytes:
             print('End of file')
+            self.__ENDOFFILE = True
             return b''
         magic, sec, msec, ecu_id = struct.unpack(self.__DLT_HEADER_FMT, header_bytes)
         if self.__active_debug:
@@ -135,7 +136,6 @@ class dltParser:
         dlt_header = self.__read_header(file)
         if dlt_header == b'':
             print('End of file in header')
-            self.__ENDOFFILE = True
             return b''
         
         # read message header
@@ -167,7 +167,7 @@ class dltParser:
             print(f"payload\t\t: {payload}\n")
 
         if not payload:
-            print('End of file in payload')
+            print('Empty payload')
             return b''
         return payload
     def isFileEnd(self):

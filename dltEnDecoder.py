@@ -57,6 +57,8 @@ class dltEnDecoder:
 
     def __decode_payload(self, payload):
         decoded_payload = payload
+        # name = input("payload: ")
+        # print(payload)
         try:
             index1 = payload.find(self.__s_str)
             index2 = payload.find(self.__e_str)
@@ -88,9 +90,6 @@ class dltEnDecoder:
                     parser = dltHeader.dltParser()
                     while True:
                         payload = parser.read_payload(file)
-                        # if not payload:
-                            # break
-                        # get header data
                         if parser.isFileEnd():
                             break
                         dltheader = parser.get_header_data()
@@ -108,15 +107,18 @@ class dltEnDecoder:
     def decode_data(self, rotate_count, encoded_data):
         try:
             encoded_data = self.__rotateData(encoded_data, rotate_count)
-            print("\nencoded data: ", encoded_data)
-            print("\n")
+            # print("\nencoded data: ", encoded_data)
+            # print("\n")
+            # data_bytes = encoded_data.encode('utf-8')
             decoded_data = base64.b64decode(encoded_data)
+            # print("decoded_data:", decoded_data)
         except Exception as e:
             print("Error!\nDeconding error on [", encoded_data, "] : ", str(e))
 
         finally:
-            unicode_string = decoded_data.decode('utf-8')
-            return unicode_string
+            return decoded_data
+            # unicode_string = decoded_data.decode('utf-8')
+            # return unicode_string
 
     def encode_data(self, rotate_count, data):
         encoded_data = b""
@@ -137,10 +139,9 @@ class dltEnDecoder:
         else:
             self.dir = self.__argv[1]
             try:
-                # file_list = self.__getFileList(self.dir)
-                # for file_path in file_list:
-                    print("file_path: ", "./log_1_20231024-114122.dlt")
-                    self.__do_decording("./log_1_20231024-114122.dlt")
+                file_list = self.__getFileList(self.dir)
+                for file_path in file_list:
+                    self.__do_decording(file_path)
             except Exception as e:
                 print(str(e))
         return True
